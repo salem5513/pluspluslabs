@@ -1,120 +1,179 @@
 #include <iostream>
+
 using namespace std;
 
-
-//структура для формування
-struct Node{
+struct Node {
     int info;
     Node* next;
+    Node* prev;
 };
-typedef Node* pNode;
 
+typedef Node* pNode;  // typedef для вказівника на Node
 
-//формування списку
-pNode formFIFO(){
-    pNode head = NULL, cur = NULL;
-    int a;
-    cout << "Enter: ";
-    cin >> a;
-    if(!a)
-        return head;
+void create2List(pNode* head, pNode* tail) {
+    *head = *tail = NULL;
+    pNode cur = NULL;
+    int info;
 
-    head = new Node;
-    head->info = a;
-    head->next = NULL;
-    cur = head;
-
-    cout << "Enter: ";
-    cin >> a;
-    while(a){
-        cur->next = new Node;
-        cur = cur->next;
-        cur->info = a;
-        cur->next = NULL;
-        cout << "Enter: ";
-        cin >> a;
+    cout << "Enter numbers to add to the list (0 to stop): ";
+    while (cin >> info && info != 0) {
+        if (*head == NULL) {
+            *head = new Node;
+            (*head)->info = info;
+            (*head)->prev = NULL;
+            (*head)->next = NULL;
+            *tail = *head;
+            cur = *head;
+        } else {
+            cur->next = new Node;
+            cur->next->prev = cur;
+            cur->next->info = info;
+            cur->next->next = NULL;
+            *tail = cur->next;
+            cur = cur->next;
+        }
     }
-    return head;
 }
 
-
-//вивід списку
-void print(pNode list){
-    if(!list)
-        return;
-    while (list) {
-        cout << list->info << "  ";
-        list = list->next;
+void printForward(pNode head) {
+    pNode cur = head;
+    while (cur) {
+        cout << cur->info << " ";
+        cur = cur->next;
     }
     cout << endl;
 }
 
-bool checker(pNode list1, pNode list2){
-    // Go through each list as long as both current nodes are not NULL
-    while(list1 != NULL && list2 != NULL) {
-        // If the current data of both lists are not equal, return false
-        if(list1->info != list2->info) {
-            return false;
-        }
-        // Move to the next elements in both lists
-        list1 = list1->next;
-        list2 = list2->next;
+// Функція для виведення вмісту списку в зворотньому напрямку
+void printBackward(pNode tail) {
+    pNode cur = tail;
+    while (cur) {
+        cout << cur->info << " ";
+        cur = cur->prev;
     }
-
-    // If either of the lists has more elements than the other, return false
-    if(list1 != NULL || list2 != NULL) {
-        return false;
-    }
-
-    // If the code reaches here, the lists are equal
-    return true;
+    cout << endl;
 }
 
-void adder(pNode list1, pNode list2, int el){
-    pNode cur;
-    if (!list1)  //чи пустий лист
-        return;
-
-    for (cur = list1; cur && cur->info != el; cur = cur->next); //проходимось по елементах, поки не знайдемо таргет, або закінчився
-
-    if(!cur)  //якщо немає нашого елементу
-        return;
-
-    pNode newNode;
-    newNode = cur->next;
-    cur->next = list2;
-
-    while (list2->next != NULL){
-        list2 = list2->next;
+int insert2Before(pNode* head, int info, int newInfo) {
+    if (*head == NULL) {
+        // Список порожній
+        return 0;
     }
-    list2->next = newNode;
-    print(list1);
-//якщо не потрібно зберигати елемнети, тоді видаляємо їх з останнього елементу до e
+
+    // Шукаємо шуканий елемент
+    pNode cur = *head;
+    while (cur != NULL && cur->info != info) {
+        cur = cur->next;
+    }
+
+    if (cur == NULL) {
+        // Елемент не знайдено
+        return 0;
+    }
+
+    // Створюємо новий вузол
+    pNode newNode = new Node;
+    newNode->info = newInfo;
+
+    if (cur == *head) {
+        // Якщо шуканий елемент є першим, оновлюємо голову
+        newNode->next = *head;
+        newNode->prev = NULL;
+        (*head)->prev = newNode;
+        *head = newNode;
+    } else {
+        // Інакше вставляємо перед знайденим елементом
+        newNode->prev = cur->prev;
+        newNode->next = cur;
+        cur->prev->next = newNode;
+        cur->prev = newNode;
+    }
+
+    return 1;
+}
+int insert2After(pNode* head, pNode* tail, int info, int newInfo) {
+    if (*head == NULL) {
+        // Список порожній
+        return 0;
+    }
+
+    // Шукаємо шуканий елемент
+    pNode cur = *head;
+    while (cur != NULL && cur->info != info) {
+        cur = cur->next;
+    }
+
+    if (cur == NULL) {
+        // Елемент не знайдено
+        return 0;
+    }
+
+    // Створюємо новий вузол
+    pNode newNode = new Node;
+    newNode->info = newInfo;
+    newNode->next = cur->next;
+    newNode->prev = cur;
+
+    if (cur->next != NULL) {
+        // Якщо не останній елемент
+        cur->next->prev = newNode;
+    } else {
+        // Якщо останній, оновлюємо хвіст
+        *tail = newNode;
+    }
+    cur->next = newNode;
+
+    return 1;
+}
+bool isSymmetric(pNode head, pNode tail) {
+    if (!head) { // Якщо список порожній, він симетричний за визначенням
+        return true;
+    }
+
+    pNode left = head;
+    pNode right = tail;
+
+    while (left != right && right->next != left) {
+        if (left->info != right->info) {
+            // Якщо знайдено елементи, які не співпадають, список не симетричний
+            return false;
+        }
+        left = left->next;
+        right = right->prev;
+    }
+
+    // Якщо пройшли весь список і не знайшли невідповідностей, список симетричний
+    return true;
 }
 
 
 
 int main() {
-
-    pNode L1 = nullptr, L2 = nullptr;
-
-    L1 = formFIFO();
-    print(L1);
-
-    L2 = formFIFO();
-    print(L2);
-
-
-
-    if (checker(L1,L2)) {
-        // block of code to be executed if the condition is true
-        cout << endl;
-        cout << "Списки однакові";
+    pNode head;
+    pNode tail;
+    int a, i;
+    create2List(&head, &tail);
+    cout << "Список у прямому порядку: ";
+    printForward(head);
+    cout << "Список у зворотньому порядку: ";
+    printBackward(tail);
+    cout << "Введить елемент a: ";
+    cin >> a;
+    cout << "Щоб вставити до елементу " << a << " введіть - 1, після - 2" << endl;
+    cin >> i;
+    if(i == 1){
+        insert2Before(&head,a,3);
+        printForward(head);
+    } else if(i == 2){
+        insert2After(&head,&tail,a, 5);
+        printForward(head);
+    } else{
+        cout << "Error";
     }
-    else {
-        int n;
-        cout << "Спискі не однакові, введить позицію E:";
-        cin >> n;
-        adder(L1,L2,n);
+    if(isSymmetric(head, tail)){
+        cout << "Список симетричний";
+    } else {
+        cout << "Список не симетричний";
     }
-};
+    return 0;
+}
