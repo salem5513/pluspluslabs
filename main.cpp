@@ -11,25 +11,25 @@ struct Node {
 typedef Node* pNode;  // typedef для вказівника на Node
 
 void create2List(pNode* head, pNode* tail) {
-    *head = *tail = NULL;
+    *head = *tail = NULL; //починаємо з порожнього
     pNode cur = NULL;
     int info;
 
     cout << "Enter numbers to add to the list (0 to stop): ";
     while (cin >> info && info != 0) {
-        if (*head == NULL) {
+        if (*head == NULL) { //якщо список порожній то створюємо перший вузел,
             *head = new Node;
-            (*head)->info = info;
+            (*head)->info = info;               //вказівники head та tail обидва встановлюються на цей новий вузол.
             (*head)->prev = NULL;
             (*head)->next = NULL;
             *tail = *head;
             cur = *head;
         } else {
-            cur->next = new Node;
-            cur->next->prev = cur;
-            cur->next->info = info;
-            cur->next->next = NULL;
-            *tail = cur->next;
+            cur->next = new Node;          //створюємо новий вузел після нашого
+            cur->next->prev = cur;      //prev теперешнього тепер вказує на попередній cur
+            cur->next->info = info;      //встановлюємо значення
+            cur->next->next = NULL;      //новий вказівник на next = null
+            *tail = cur->next;          //оновлюємо tail та cur
             cur = cur->next;
         }
     }
@@ -116,11 +116,13 @@ int insert2After(pNode* head, pNode* tail, int info, int newInfo) {
 
     if (cur->next != NULL) {
         // Якщо не останній елемент
+        //то встановлюється вказівник prev наступного вузла на новий вузол:
         cur->next->prev = newNode;
     } else {
         // Якщо останній, оновлюємо хвіст
         *tail = newNode;
     }
+    //next вказівник cur вказівника оновлюється, щоб вказувати на новий вузел
     cur->next = newNode;
 
     return 1;
@@ -130,7 +132,7 @@ bool isSymmetric(pNode head, pNode tail) {
         return true;
     }
 
-    pNode left = head;
+    pNode left = head;  //де початок там кінець...
     pNode right = tail;
 
     while (left != right && right->next != left) {
@@ -162,10 +164,10 @@ int main() {
     cout << "Щоб вставити до елементу " << a << " введіть - 1, після - 2" << endl;
     cin >> i;
     if(i == 1){
-        insert2Before(&head,a,3);
+        insert2Before(&head,a,66);
         printForward(head);
     } else if(i == 2){
-        insert2After(&head,&tail,a, 5);
+        insert2After(&head,&tail,a, 66);
         printForward(head);
     } else{
         cout << "Error";
