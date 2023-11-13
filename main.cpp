@@ -2,180 +2,87 @@
 
 using namespace std;
 
-struct Node {
-    int info;
-    Node* next;
-    Node* prev;
+struct t_tree {
+    int info; //Елементи можуть бути будь-якого типу
+    t_tree * left;
+    t_tree * right;
 };
 
-typedef Node* pNode;  // typedef для вказівника на Node
+typedef t_tree * ptree;
 
-void create2List(pNode* head, pNode* tail) {
-    *head = *tail = NULL; //починаємо з порожнього
-    pNode cur = NULL;
+// Формування з клавіатури
+ptree formTree() {
+    ptree t;
     int info;
+    cin >> info;
+    if (info == 0)
+        return NULL;
+    t = new t_tree;
+    t->info = info;
+    t->left = formTree();
+    t->right = formTree();
+    return t;
+}
 
-    cout << "Enter numbers to add to the list (0 to stop): ";
-    while (cin >> info && info != 0) {
-        if (*head == NULL) { //якщо список порожній то створюємо перший вузел,
-            *head = new Node;
-            (*head)->info = info;               //вказівники head та tail обидва встановлюються на цей новий вузол.
-            (*head)->prev = NULL;
-            (*head)->next = NULL;
-            *tail = *head;
-            cur = *head;
-        } else {
-            cur->next = new Node;          //створюємо новий вузел після нашого
-            cur->next->prev = cur;      //prev теперешнього тепер вказує на попередній cur
-            cur->next->info = info;      //встановлюємо значення
-            cur->next->next = NULL;      //новий вказівник на next = null
-            *tail = cur->next;          //оновлюємо tail та cur
-            cur = cur->next;
-        }
+// Обхід у прямому порядку
+void displayTopDown(ptree tree) {
+    if (tree) {
+        cout << tree->info << " ";
+        displayTopDown(tree->left);
+        displayTopDown(tree->right);
+    }
+
+}
+void displayReverse(ptree tree) {
+    if (tree) {
+        displayReverse(tree->left);
+        displayReverse(tree->right);
+        cout << tree->info << " ";
+
     }
 }
 
-void printForward(pNode head) {
-    pNode cur = head;
-    while (cur) {
-        cout << cur->info << " ";
-        cur = cur->next;
+void displaySymetric(ptree tree) {
+    if (tree) {
+        displaySymetric(tree->left);
+        cout << tree->info << " ";
+        displaySymetric(tree->right);
+
     }
-    cout << endl;
 }
-
-// Функція для виведення вмісту списку в зворотньому напрямку
-void printBackward(pNode tail) {
-    pNode cur = tail;
-    while (cur) {
-        cout << cur->info << " ";
-        cur = cur->prev;
-    }
-    cout << endl;
+int Counter(ptree tree, int target) {
+    int count = 0;
+    if (!tree) return count;
+    if (tree->info == target) count++;
+    count += Counter(tree->left, target);
+    count += Counter(tree->right, target);
+    return count;
 }
-
-int insert2Before(pNode* head, int info, int newInfo) {
-    if (*head == NULL) {
-        // Список порожній
-        return 0;
-    }
-
-    // Шукаємо шуканий елемент
-    pNode cur = *head;
-    while (cur != NULL && cur->info != info) {
-        cur = cur->next;
-    }
-
-    if (cur == NULL) {
-        // Елемент не знайдено
-        return 0;
-    }
-
-    // Створюємо новий вузол
-    pNode newNode = new Node;
-    newNode->info = newInfo;
-
-    if (cur == *head) {
-        // Якщо шуканий елемент є першим, оновлюємо голову
-        newNode->next = *head;
-        newNode->prev = NULL;
-        (*head)->prev = newNode;
-        *head = newNode;
-    } else {
-        // Інакше вставляємо перед знайденим елементом
-        newNode->prev = cur->prev;
-        newNode->next = cur;
-        cur->prev->next = newNode;
-        cur->prev = newNode;
-    }
-
-    return 1;
-}
-int insert2After(pNode* head, pNode* tail, int info, int newInfo) {
-    if (*head == NULL) {
-        // Список порожній
-        return 0;
-    }
-
-    // Шукаємо шуканий елемент
-    pNode cur = *head;
-    while (cur != NULL && cur->info != info) {
-        cur = cur->next;
-    }
-
-    if (cur == NULL) {
-        // Елемент не знайдено
-        return 0;
-    }
-
-    // Створюємо новий вузол
-    pNode newNode = new Node;
-    newNode->info = newInfo;
-    newNode->next = cur->next;
-    newNode->prev = cur;
-
-    if (cur->next != NULL) {
-        // Якщо не останній елемент
-        //то встановлюється вказівник prev наступного вузла на новий вузол:
-        cur->next->prev = newNode;
-    } else {
-        // Якщо останній, оновлюємо хвіст
-        *tail = newNode;
-    }
-    //next вказівник cur вказівника оновлюється, щоб вказувати на новий вузел
-    cur->next = newNode;
-
-    return 1;
-}
-bool isSymmetric(pNode head, pNode tail) {
-    if (!head) { // Якщо список порожній, він симетричний за визначенням
-        return true;
-    }
-
-    pNode left = head;  //де початок там кінець...
-    pNode right = tail;
-
-    while (left != right && right->next != left) {
-        if (left->info != right->info) {
-            // Якщо знайдено елементи, які не співпадають, список не симетричний
-            return false;
-        }
-        left = left->next;
-        right = right->prev;
-    }
-
-    // Якщо пройшли весь список і не знайшли невідповідностей, список симетричний
-    return true;
-}
-
-
 
 int main() {
-    pNode head;
-    pNode tail;
-    int a, i;
-    create2List(&head, &tail);
-    cout << "Список у прямому порядку: ";
-    printForward(head);
-    cout << "Список у зворотньому порядку: ";
-    printBackward(tail);
-    cout << "Введить елемент a: ";
-    cin >> a;
-    cout << "Щоб вставити до елементу " << a << " введіть - 1, після - 2" << endl;
-    cin >> i;
-    if(i == 1){
-        insert2Before(&head,a,66);
-        printForward(head);
-    } else if(i == 2){
-        insert2After(&head,&tail,a, 66);
-        printForward(head);
-    } else{
-        cout << "Error";
-    }
-    if(isSymmetric(head, tail)){
-        cout << "Список симетричний";
-    } else {
-        cout << "Список не симетричний";
-    }
+    cout << "Enter numbers to create a binary tree (0 to finish):" << endl;
+    ptree tree = formTree();
+
+    cout << "\nDisplaying the tree in pre-order:" << endl;
+    displayTopDown(tree);
+    cout << endl;
+
+    // Call the function to display the tree in in-order (which is actually named displayReverse here)
+    cout << "Displaying the tree in in-order (reverse):" << endl;
+    displayReverse(tree);
+    cout << endl;
+
+    // Call the function to display the tree in post-order (which is actually named displaySymetric here)
+    cout << "Displaying the tree in post-order (symmetric):" << endl;
+    displaySymetric(tree);
+    cout << endl;
+
+    // Now we can test the Counter function.
+    int target;
+    cout << "Enter a number to count in the tree: ";
+    cin >> target;
+    int count = Counter(tree, target);
+    cout << "The number " << target << " appears in the tree " << count << " times." << endl;
+
     return 0;
 }
