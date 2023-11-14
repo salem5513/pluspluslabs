@@ -58,31 +58,35 @@ int Counter(ptree tree, int target) {
     count += Counter(tree->right, target);
     return count;
 }
+void insert(ptree &tree, int info) {
+    if (!tree) {
+        tree = new t_tree{info, NULL, NULL};
+    } else if (info < tree->info) {
+        insert(tree->left, info);
+    } else if (info > tree->info) {
+        insert(tree->right, info);
+    }
+}
+void findEvenNumbersAndInsert(ptree &sourceTree, ptree &newTree) {
+    if (sourceTree) {
+        findEvenNumbersAndInsert(sourceTree->left, newTree);
+        if (sourceTree->info % 2 == 0) {
+            insert(newTree, sourceTree->info);
+        }
+        findEvenNumbersAndInsert(sourceTree->right, newTree);
+    }
+}
 
 int main() {
     cout << "Enter numbers to create a binary tree (0 to finish):" << endl;
-    ptree tree = formTree();
+    ptree originalTree = formTree();
 
-    cout << "\nDisplaying the tree in pre-order:" << endl;
-    displayTopDown(tree);
-    cout << endl;
+    ptree evenTree = NULL; // Створюємо пусте дерево для парних чисел
+    findEvenNumbersAndInsert(originalTree, evenTree); // Заповнюємо дерево парними числами
 
-    // Call the function to display the tree in in-order (which is actually named displayReverse here)
-    cout << "Displaying the tree in in-order (reverse):" << endl;
-    displayReverse(tree);
-    cout << endl;
-
-    // Call the function to display the tree in post-order (which is actually named displaySymetric here)
-    cout << "Displaying the tree in post-order (symmetric):" << endl;
-    displaySymetric(tree);
-    cout << endl;
-
-    // Now we can test the Counter function.
-    int target;
-    cout << "Enter a number to count in the tree: ";
-    cin >> target;
-    int count = Counter(tree, target);
-    cout << "The number " << target << " appears in the tree " << count << " times." << endl;
+    cout << "Displaying the even numbers tree in in-order:" << endl;
+    displayTopDown(evenTree); // Виводимо нове дерево у симетричному порядку
 
     return 0;
 }
+
