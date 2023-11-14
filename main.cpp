@@ -1,9 +1,10 @@
 #include <iostream>
+#include <cmath> // Для функції std::floor
 
 using namespace std;
 
 struct t_tree {
-    int info; //Елементи можуть бути будь-якого типу
+    double info; // тут дійсні
     t_tree * left;
     t_tree * right;
 };
@@ -13,7 +14,7 @@ typedef t_tree * ptree;
 // Формування з клавіатури
 ptree formTree() {
     ptree t;
-    int info;
+    double info;
     cin >> info;
     if (info == 0)
         return NULL;
@@ -24,69 +25,52 @@ ptree formTree() {
     return t;
 }
 
-// Обхід у прямому порядку
-void displayTopDown(ptree tree) {
-    if (tree) {
-        cout << tree->info << " ";
-        displayTopDown(tree->left);
-        displayTopDown(tree->right);
-    }
-
-}
-void displayReverse(ptree tree) {
-    if (tree) {
-        displayReverse(tree->left);
-        displayReverse(tree->right);
-        cout << tree->info << " ";
-
-    }
-}
-
+//симетрично вивести
 void displaySymetric(ptree tree) {
     if (tree) {
         displaySymetric(tree->left);
         cout << tree->info << " ";
         displaySymetric(tree->right);
-
     }
 }
-int Counter(ptree tree, int target) {
-    int count = 0;
-    if (!tree) return count;
-    if (tree->info == target) count++;
-    count += Counter(tree->left, target);
-    count += Counter(tree->right, target);
-    return count;
-}
-void insert(ptree &tree, int info) {
-    if (!tree) {
-        tree = new t_tree{info, NULL, NULL};
-    } else if (info < tree->info) {
+
+
+void insert(ptree &tree, double info) { //прийняли значення і newTree
+    if (!tree) { //перевірка чи існує корінь дерева
+        tree = new t_tree{info, NULL, NULL}; //створили його
+    } else if (info < tree->info) { //якщо значення менше ніж в поточному, вставляємо ліворуч
         insert(tree->left, info);
-    } else if (info > tree->info) {
+    } else if (info > tree->info) { //якщо більше то вставляємо праворуч
         insert(tree->right, info);
     }
 }
+
+bool isEven(double value) { //перевірка на парність
+    if (value == std::floor(value) && (int)value % 2 == 0) { //округлили вниз і перевірили на цілість та парність
+        return true;
+    }
+    return false;
+}
+
 void findEvenNumbersAndInsert(ptree &sourceTree, ptree &newTree) {
-    if (sourceTree) {
-        findEvenNumbersAndInsert(sourceTree->left, newTree);
-        if (sourceTree->info % 2 == 0) {
-            insert(newTree, sourceTree->info);
+    if (sourceTree) { //перевірка поточного узла на null
+        findEvenNumbersAndInsert(sourceTree->left, newTree); //йдемо в ліво
+        if (isEven(sourceTree->info)) { //якщо значення вузла парне
+            insert(newTree, sourceTree->info); //забираємо це значення в нове дерево
         }
-        findEvenNumbersAndInsert(sourceTree->right, newTree);
+        findEvenNumbersAndInsert(sourceTree->right, newTree); //йдемо в право
     }
 }
 
 int main() {
-    cout << "Enter numbers to create a binary tree (0 to finish):" << endl;
+    cout << "Enter numbers to create a tree (0 to finish):" << endl;
     ptree originalTree = formTree();
 
-    ptree evenTree = NULL; // Створюємо пусте дерево для парних чисел
-    findEvenNumbersAndInsert(originalTree, evenTree); // Заповнюємо дерево парними числами
+    ptree evenTree = NULL; // Створюємо пусте дерево для чисел, які є цілими та парними
+    findEvenNumbersAndInsert(originalTree, evenTree); // Заповнюємо дерево
 
-    cout << "Displaying the even numbers tree in in-order:" << endl;
-    displayTopDown(evenTree); // Виводимо нове дерево у симетричному порядку
+    cout << "Displaying the tree of even numbers" << endl;
+    displaySymetric(evenTree); // Виводимо нове дерево
 
     return 0;
 }
-
