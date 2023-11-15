@@ -1,76 +1,69 @@
 #include <iostream>
-#include <cmath> // Для функції std::floor
-
 using namespace std;
+/*створити матрицю m x n, якщо матриця квадратна порахувату сумму елементів
+ верхнього трикутнка матриці */
 
-struct t_tree {
-    double info; // тут дійсні
-    t_tree * left;
-    t_tree * right;
-};
 
-typedef t_tree * ptree;
-
-// Формування з клавіатури
-ptree formTree() {
-    ptree t;
-    double info;
-    cin >> info;
-    if (info == 0)
-        return NULL;
-    t = new t_tree;
-    t->info = info;
-    t->left = formTree();
-    t->right = formTree();
-    return t;
-}
-
-//симетрично вивести
-void displaySymetric(ptree tree) {
-    if (tree) {
-        displaySymetric(tree->left);
-        cout << tree->info << " ";
-        displaySymetric(tree->right);
+//create
+int** createMatrix(int n, int m) {
+    int** matrix = new int*[n]; //масив вказівників
+    for (int i = 0; i < n; i++) {
+        matrix[i] = new int[m];
     }
-}
 
-
-void insert(ptree &tree, double info) { //прийняли значення і newTree
-    if (!tree) { //перевірка чи існує корінь дерева
-        tree = new t_tree{info, NULL, NULL}; //створили його
-    } else if (info < tree->info) { //якщо значення менше ніж в поточному, вставляємо ліворуч
-        insert(tree->left, info);
-    } else if (info > tree->info) { //якщо більше то вставляємо праворуч
-        insert(tree->right, info);
-    }
-}
-
-bool isEven(double value) { //перевірка на парність
-    if (value == std::floor(value) && (int)value % 2 == 0) { //округлили вниз і перевірили на цілість та парність
-        return true;
-    }
-    return false;
-}
-
-void findEvenNumbersAndInsert(ptree &sourceTree, ptree &newTree) {
-    if (sourceTree) { //перевірка поточного узла на null
-        findEvenNumbersAndInsert(sourceTree->left, newTree); //йдемо в ліво
-        if (isEven(sourceTree->info)) { //якщо значення вузла парне
-            insert(newTree, sourceTree->info); //забираємо це значення в нове дерево
+    cout << "Введіть елементи матриці:" << endl;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> matrix[i][j];
         }
-        findEvenNumbersAndInsert(sourceTree->right, newTree); //йдемо в право
     }
+
+    return matrix; //повернули вказівник
+}
+
+//print
+void printMatrix(int** matrix, int n, int m) {
+    cout << "Ваша матриця:" << endl;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+int sum_Matrix(int** matrix, int N) {
+    int sum = 0;
+    for (int i = 0; i < N / 2; i++) {
+        for (int j = i + 1; j < N - i - 1; j++) {
+            sum += matrix[i][j];
+        }
+    }
+    return sum;
 }
 
 int main() {
-    cout << "Enter numbers to create a tree (0 to finish):" << endl;
-    ptree originalTree = formTree();
+    int n, m;
+    cout << "Введіть кількість рядків (n): ";
+    cin >> n;
+    cout << "Введіть кількість стовпців (m): ";
+    cin >> m;
 
-    ptree evenTree = NULL; // Створюємо пусте дерево для чисел, які є цілими та парними
-    findEvenNumbersAndInsert(originalTree, evenTree); // Заповнюємо дерево
+    // Створюємо матрицю
+    int** matrix = createMatrix(n, m);
 
-    cout << "Displaying the tree of even numbers" << endl;
-    displaySymetric(evenTree); // Виводимо нове дерево
+    // Виводимо матрицю
+    printMatrix(matrix, n, m);
+    if (n == m) {
+        cout << "Сума  елементів верхнього трикутника: " << sum_Matrix(matrix, n) << endl;
+    } else {
+        cout << "Матриця не квадратна" << endl;
+    }
+    // Звільняємо пам'ять
+    for (int i = 0; i < n; i++) {
+        delete[] matrix[i];
+    }
+    delete[] matrix;
 
     return 0;
 }
